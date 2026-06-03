@@ -11,6 +11,7 @@ services:
       MONGO_URI: ${MONGO_URI}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       CLIENT_URL: ${CLIENT_URL}
       FARMER_SUBSCRIPTION_AMOUNT: ${FARMER_SUBSCRIPTION_AMOUNT:-199}
       CUSTOMER_PLATFORM_FEE: ${CUSTOMER_PLATFORM_FEE:-15}
@@ -43,6 +44,7 @@ services:
       dockerfile: Dockerfile.client
       args:
         VITE_API_URL: ${VITE_API_URL:-}
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     restart: unless-stopped
     ports:
       - "${CLIENT_PORT:-80}:80"

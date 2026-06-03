@@ -32,6 +32,7 @@ jobs:
           CLIENT_URL: http://localhost
           MONGO_URI: mongodb+srv://example:example@example.mongodb.net/farm_connect
           JWT_SECRET: ci-compose-check
+          GOOGLE_CLIENT_ID: ci-google-client-id
         run: docker compose config
 
       - name: Validate HTTPS Docker Compose
@@ -41,6 +42,7 @@ jobs:
           CLIENT_URL: https://kisanconnect.example.com
           MONGO_URI: mongodb+srv://example:example@example.mongodb.net/farm_connect
           JWT_SECRET: ci-compose-check
+          GOOGLE_CLIENT_ID: ci-google-client-id
         run: docker compose --profile https config
 
   deploy:
@@ -107,6 +109,7 @@ jobs:
             MONGO_URI=${{ secrets.MONGO_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN || '7d' }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             ADDITIONAL_CLIENT_URLS=${{ secrets.ADDITIONAL_CLIENT_URLS }}
             FARMER_SUBSCRIPTION_AMOUNT=${{ secrets.FARMER_SUBSCRIPTION_AMOUNT || '199' }}
             CUSTOMER_PLATFORM_FEE=${{ secrets.CUSTOMER_PLATFORM_FEE || '15' }}

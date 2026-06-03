@@ -13,6 +13,7 @@ This project focuses on a real farm-to-customer workflow instead of only showing
 - Area-based delivery partner assignment so orders can be connected to partners by service location.
 - Order date and time visibility across customer, farmer, and delivery views.
 - Customer support with a support widget, call option, request form, and support history.
+- Google login for customers, with backend token verification before the app creates its JWT session.
 - A redesigned frontend with a cleaner logo, marketplace sections, improved admin desk, and a market-page footer.
 - Docker and Docker Compose setup for containerized hosting.
 - MongoDB Atlas configuration for hosted database usage.
@@ -23,7 +24,7 @@ This project focuses on a real farm-to-customer workflow instead of only showing
 - Frontend: React, Vite, CSS
 - Backend: Node.js, Express
 - Database: MongoDB / MongoDB Atlas
-- Authentication: JWT
+- Authentication: JWT and Google Identity Services
 - Uploads: Multer local uploads
 - Deployment: Docker, Docker Compose, GitHub Actions, EC2
 - HTTPS option: Caddy with Let's Encrypt
@@ -73,6 +74,12 @@ For Atlas:
 MONGO_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.example.mongodb.net/farm_connect?retryWrites=true&w=majority
 ```
 
+To enable Google login locally, add your Google OAuth web client ID:
+
+```env
+GOOGLE_CLIENT_ID=your_google_web_client_id
+```
+
 Run the app:
 
 ```bash
@@ -119,6 +126,7 @@ CLIENT_PORT=5173
 CLIENT_URL=http://localhost:5173
 MONGO_URI=your_atlas_uri_with_/farm_connect
 JWT_SECRET=make_a_long_random_secret
+GOOGLE_CLIENT_ID=your_google_web_client_id
 ```
 
 Run containers:
@@ -144,6 +152,44 @@ Check containers:
 ```bash
 docker compose ps
 ```
+
+## Google Login Setup
+
+Google login is optional, but the code is ready for it. The frontend renders Google's official sign-in button, the backend verifies Google's ID token, and then Kisan Connect creates the same JWT session used by normal login.
+
+To enable it:
+
+1. Open Google Cloud Console.
+2. Create or select a project.
+3. Configure the OAuth consent screen.
+4. Create an OAuth **Web application** client ID.
+5. Add your frontend URLs as authorized JavaScript origins.
+
+For local development:
+
+```text
+http://localhost:5173
+```
+
+For EC2 HTTP testing:
+
+```text
+http://YOUR_EC2_PUBLIC_IP
+```
+
+For the free HTTPS hostname:
+
+```text
+https://16.16.176.100.sslip.io
+```
+
+Set the OAuth client ID in `.env`, `server/.env`, or GitHub Secrets:
+
+```env
+GOOGLE_CLIENT_ID=your_google_web_client_id
+```
+
+If `GOOGLE_CLIENT_ID` is empty, email/password login still works and the Google button stays hidden.
 
 ## EC2 Hosting
 
@@ -202,18 +248,32 @@ http://YOUR_EC2_PUBLIC_IP
 
 If the browser shows `Not Secure`, it is because the app is being opened with plain HTTP.
 
-To get a proper secure lock icon, use a real domain name. A raw EC2 public IP usually cannot get a normal trusted browser certificate.
+The cleanest option is using a real domain name, but you can also use a free DNS helper such as `sslip.io` if you do not want to buy a domain.
+
+For example, if the EC2 public IP is:
+
+```text
+16.16.176.100
+```
+
+Use this free hostname:
+
+```text
+16.16.176.100.sslip.io
+```
+
+That hostname automatically points to `16.16.176.100`, so Caddy can request a trusted HTTPS certificate for it.
 
 HTTPS steps:
 
-1. Buy or use a domain.
-2. Point the domain DNS `A` record to the EC2 public IP.
-3. In the EC2 security group, open ports `80` and `443`.
+1. Use a domain you own, or use the free `YOUR_EC2_PUBLIC_IP.sslip.io` hostname.
+2. In the EC2 security group, open ports `80` and `443`.
+3. Make sure the EC2 public IP does not change. An AWS Elastic IP is better for this.
 4. Set these values:
 
 ```env
-APP_DOMAIN=your-domain.com
-CLIENT_URL=https://your-domain.com
+APP_DOMAIN=16.16.176.100.sslip.io
+CLIENT_URL=https://16.16.176.100.sslip.io
 CLIENT_PORT=127.0.0.1:8080
 ```
 
@@ -224,6 +284,12 @@ docker compose --profile https up --build -d
 ```
 
 Caddy will request and renew the SSL certificate automatically through Let's Encrypt.
+
+Open the secure app at:
+
+```text
+https://16.16.176.100.sslip.io
+```
 
 If port `80` or `443` is already occupied, stop the old service/container first:
 
@@ -255,6 +321,7 @@ EC2_SSH_KEY=your_private_key_content
 CLIENT_URL=http://your_ec2_public_ip
 MONGO_URI=your_atlas_uri_with_/farm_connect
 JWT_SECRET=long_random_secret
+GOOGLE_CLIENT_ID=your_google_web_client_id
 ```
 
 For HTTPS deployment, add:

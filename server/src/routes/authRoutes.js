@@ -1,5 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
+import { OAuth2Client } from 'google-auth-library';
 import DeliveryPartner from '../models/DeliveryPartner.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
@@ -7,6 +8,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { createToken } from '../utils/token.js';
 
 const router = express.Router();
+const googleClient = new OAuth2Client();
 
 function handleValidation(req, res, next) {
   const errors = validationResult(req);
@@ -185,6 +187,62 @@ router.post(
 
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password.' });
+    }
+
+    return res.json({
+      user: user.toSafeObject(),
+      token: createToken(user)
+    });
+  })
+);
+
+router.post(
+  '/google',
+  [body('credential').notEmpty().withMessage('Google credential is required.')],
+  handleValidation,
+  asyncHandler(async (req, res) => {
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+
+    if (!googleClientId) {
+      return res.status(500).json({ message: 'Google login is not configured.' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: req.body.credential,
+      audience: googleClientId
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(401).json({ message: 'Google account email is not verified.' });
+    }
+
+    const email = payload.email.toLowerCase();
+    let user = await User.findOne({ email }).select('+googleId +password');
+
+    if (user) {
+      if (user.googleId && user.googleId !== payload.sub) {
+        return res.status(409).json({ message: 'This email is linked to another Google account.' });
+      }
+
+      if (!user.googleId) {
+        user.googleId = payload.sub;
+        if (user.authProvider !== 'local') {
+          user.authProvider = 'google';
+        }
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: payload.name || email.split('@')[0],
+        email,
+        role: 'customer',
+        authProvider: 'google',
+        googleId: payload.sub,
+        farmerProfile: {
+          verificationStatus: 'not_required'
+        }
+      });
     }
 
     return res.json({

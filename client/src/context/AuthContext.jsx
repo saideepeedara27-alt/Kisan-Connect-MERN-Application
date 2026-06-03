@@ -67,6 +67,13 @@ export function AuthProvider({ children }) {
     return response.data.user;
   }
 
+  async function googleLogin(credential) {
+    const response = await api.post('/auth/google', { credential });
+    setUser(response.data.user);
+    setToken(response.data.token);
+    return response.data.user;
+  }
+
   async function register(payload) {
     const response = await api.post('/auth/register', payload);
     setUser(response.data.user);
@@ -88,6 +95,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user && token),
       authLoading,
       login,
+      googleLogin,
       register,
       logout
     }),
