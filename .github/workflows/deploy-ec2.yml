@@ -106,5 +106,11 @@ jobs:
               docker rm -f $SERVER_PORT_CONTAINERS
             fi
 
+            CLIENT_PORT_CONTAINERS="$(docker ps -q --filter "publish=80")"
+            if [ -n "$CLIENT_PORT_CONTAINERS" ]; then
+              echo "Removing old container using client port 80: $CLIENT_PORT_CONTAINERS"
+              docker rm -f $CLIENT_PORT_CONTAINERS
+            fi
+
             docker compose up --build -d --remove-orphans
             docker compose ps
