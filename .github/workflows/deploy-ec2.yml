@@ -1,0 +1,96 @@
+name: CI and EC2 Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Validate Docker Compose
+        env:
+          CLIENT_URL: http://localhost
+          MONGO_URI: mongodb+srv://example:example@example.mongodb.net/farm_connect
+          JWT_SECRET: ci-compose-check
+        run: docker compose config
+
+  deploy:
+    name: Deploy To EC2
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || 22 }}
+          script: |
+            set -e
+
+            APP_DIR="${{ secrets.EC2_APP_DIR }}"
+            REPO_URL="${{ secrets.REPO_URL }}"
+
+            if [ -z "$APP_DIR" ]; then
+              APP_DIR="$HOME/kisan-connect"
+            fi
+
+            if [ -z "$REPO_URL" ]; then
+              echo "Missing GitHub secret: REPO_URL"
+              exit 1
+            fi
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone "$REPO_URL" "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+
+            mkdir -p server/uploads
+
+            cat > .env <<'EOF'
+            CLIENT_PORT=80
+            SERVER_PORT=5001
+            CLIENT_URL=${{ secrets.CLIENT_URL }}
+            VITE_API_URL=
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN || '7d' }}
+            FARMER_SUBSCRIPTION_AMOUNT=${{ secrets.FARMER_SUBSCRIPTION_AMOUNT || '199' }}
+            CUSTOMER_PLATFORM_FEE=${{ secrets.CUSTOMER_PLATFORM_FEE || '15' }}
+            CURRENCY=${{ secrets.CURRENCY || 'INR' }}
+            FAST_DELIVERY_PROVIDER=${{ secrets.FAST_DELIVERY_PROVIDER || 'Kisan Connect Delivery' }}
+            FAST_DELIVERY_ETA_MINUTES=${{ secrets.FAST_DELIVERY_ETA_MINUTES || '45' }}
+            FAST_DELIVERY_PHONE=${{ secrets.FAST_DELIVERY_PHONE || '+918880045045' }}
+            SUPPORT_PHONE=${{ secrets.SUPPORT_PHONE || '+918880012345' }}
+            SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL || 'support@kisanconnect.local' }}
+            SUPPORT_HOURS=${{ secrets.SUPPORT_HOURS || 'Every day, 8 AM - 8 PM' }}
+            EOF
+
+            docker compose up --build -d
+            docker compose ps

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kisan Connect">
+  <rect width="64" height="64" rx="14" fill="#236f45"/>
+  <path d="M13 22h38l4 10H9l4-10Z" fill="#f4c76f"/>
+  <path d="M18 22l-2 10M29 22l-.7 10M40 22l.7 10M51 22l2 10" stroke="#7c4b16" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M17 33v14h30V33" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 41h14l-2 8H27l-2-8Z" fill="#f4c76f" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M33 39c.6-7 5.4-11 14-12-.8 7.4-5.6 11.5-14 12Z" fill="#d9ffd7"/>
+  <path d="M33 39c1.8-3.2 4.7-5.5 8.8-7" fill="none" stroke="#236f45" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="23" cy="39" r="4" fill="#d95745"/>
+</svg>
