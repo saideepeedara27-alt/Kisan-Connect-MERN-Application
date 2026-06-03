@@ -1,3 +1,5 @@
+name: kisan-connect
+
 services:
   server:
     build:
