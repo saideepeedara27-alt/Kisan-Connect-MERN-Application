@@ -93,7 +93,9 @@ export default function Login() {
         window.google.accounts.id.renderButton(googleButtonRef.current, {
           theme: 'outline',
           size: 'large',
-          shape: 'rectangular',
+          shape: 'pill',
+          text: 'continue_with',
+          logo_alignment: 'center',
           width: googleButtonRef.current.offsetWidth || 360
         });
       } catch (scriptError) {
@@ -151,7 +153,9 @@ export default function Login() {
             <div className="auth-divider">
               <span>or</span>
             </div>
-            <div className="google-signin-slot" ref={googleButtonRef} />
+            <div className="google-login-panel">
+              <div className="google-signin-slot" ref={googleButtonRef} />
+            </div>
           </>
         )}
         <p className="auth-link">

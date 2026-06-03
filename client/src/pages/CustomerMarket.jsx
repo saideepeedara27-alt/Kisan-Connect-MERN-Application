@@ -1,6 +1,5 @@
 import {
   Apple,
-  BadgeCheck,
   Carrot,
   ChevronLeft,
   ChevronRight,
@@ -13,7 +12,6 @@ import {
   ShoppingBasket,
   Sprout,
   Tags,
-  Truck,
   Wheat,
   X
 } from 'lucide-react';
@@ -175,33 +173,12 @@ export default function CustomerMarket() {
 
   return (
     <section className="page-pad market-page">
-      <div className="market-hero">
-        <div className="market-hero-copy">
+      <div className="section-heading market-heading">
+        <div>
           <p className="eyebrow">Customer market</p>
-          <h1>Fresh products from nearby listed farmers</h1>
-          <p>
-            Browse available farm stock, compare prices by location, and order with area-based delivery support.
-          </p>
+          <h1>Fresh products from listed farmers</h1>
         </div>
-
-        <div className="market-hero-stats" aria-label="Market overview">
-          <div>
-            <strong>{meta.priceRange.productCount || 0}</strong>
-            <span>Products listed</span>
-          </div>
-          <div>
-            <strong>{meta.priceRange.totalStock || 0}</strong>
-            <span>Units in stock</span>
-          </div>
-          <div>
-            <strong>{meta.locations.length || 0}</strong>
-            <span>Market areas</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="market-control-panel">
-        <div className="market-control-head">
+        <div className="heading-actions">
           <div className="fee-chip">
             <Tags size={17} />
             {meta.priceRange.productCount || 0} products
@@ -210,122 +187,118 @@ export default function CustomerMarket() {
             <ShoppingBasket size={17} />
             Fee: {config.currency} {config.customerPlatformFee}
           </div>
-          <div className="fee-chip">
-            <Truck size={17} />
-            Area delivery
-          </div>
         </div>
-
-        <div className="category-strip" aria-label="Product categories">
-          <button
-            className={!filters.category ? 'active' : ''}
-            type="button"
-            onClick={() => selectCategory('')}
-          >
-            All <span>{meta.priceRange.productCount || 0}</span>
-          </button>
-          {meta.categories.map((category) => (
-            (() => {
-              const Icon = getCategoryIcon(category);
-              return (
-                <button
-                  className={filters.category === category ? 'active' : ''}
-                  key={category}
-                  type="button"
-                  onClick={() => selectCategory(category)}
-                >
-                  <Icon size={15} />
-                  {category} <span>{meta.categoryCounts?.[category] || 0}</span>
-                </button>
-              );
-            })()
-          ))}
-        </div>
-
-        <div className="toolbar">
-          <label className="search-box">
-            <Search size={18} />
-            <input
-              name="search"
-              placeholder="Search tomato, rice, spinach..."
-              value={filters.search}
-              onChange={updateFilter}
-            />
-          </label>
-          <label className="select-box">
-            <Filter size={18} />
-            <select name="category" value={filters.category} onChange={updateFilter}>
-              <option value="">All categories</option>
-              {meta.categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="select-box">
-            <select name="location" value={filters.location} onChange={updateFilter}>
-              <option value="">All locations</option>
-              {meta.locations.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
-          </label>
-          <input
-            className="plain-input"
-            name="minPrice"
-            placeholder={`Min ${config.currency}`}
-            type="number"
-            value={filters.minPrice}
-            onChange={updateFilter}
-          />
-          <input
-            className="plain-input"
-            name="maxPrice"
-            placeholder={`Max ${config.currency}`}
-            type="number"
-            value={filters.maxPrice}
-            onChange={updateFilter}
-          />
-          <label className="select-box">
-            <select name="sort" value={filters.sort} onChange={updateFilter}>
-              <option value="newest">Newest</option>
-              <option value="priceLow">Price: low to high</option>
-              <option value="priceHigh">Price: high to low</option>
-              <option value="stockHigh">Highest stock</option>
-            </select>
-          </label>
-          <button className="secondary-button compact toolbar-button" type="button" onClick={clearFilters}>
-            <RefreshCcw size={16} />
-            Reset
-          </button>
-        </div>
-
-        <div className="market-summary">
-          <span>
-            Showing {products.length} of {pagination.total} matching products
-          </span>
-          <span>
-            Total visible stock: {meta.priceRange.totalStock || 0} units
-          </span>
-        </div>
-
-        {activeFilterChips.length > 0 && (
-          <div className="filter-chip-row" aria-label="Active filters">
-            {activeFilterChips.map((chip) => (
-              <button key={chip.name} type="button" onClick={() => clearFilter(chip.name)}>
-                {chip.label}
-                <X size={14} />
-              </button>
-            ))}
-            <button className="clear-all-chip" type="button" onClick={clearFilters}>
-              Clear all
-            </button>
-          </div>
-        )}
       </div>
+
+      <div className="category-strip" aria-label="Product categories">
+        <button
+          className={!filters.category ? 'active' : ''}
+          type="button"
+          onClick={() => selectCategory('')}
+        >
+          All <span>{meta.priceRange.productCount || 0}</span>
+        </button>
+        {meta.categories.map((category) => (
+          (() => {
+            const Icon = getCategoryIcon(category);
+            return (
+              <button
+                className={filters.category === category ? 'active' : ''}
+                key={category}
+                type="button"
+                onClick={() => selectCategory(category)}
+              >
+                <Icon size={15} />
+                {category} <span>{meta.categoryCounts?.[category] || 0}</span>
+              </button>
+            );
+          })()
+        ))}
+      </div>
+
+      <div className="toolbar market-toolbar">
+        <label className="search-box">
+          <Search size={18} />
+          <input
+            name="search"
+            placeholder="Search tomato, rice, spinach..."
+            value={filters.search}
+            onChange={updateFilter}
+          />
+        </label>
+        <label className="select-box">
+          <Filter size={18} />
+          <select name="category" value={filters.category} onChange={updateFilter}>
+            <option value="">All categories</option>
+            {meta.categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="select-box">
+          <select name="location" value={filters.location} onChange={updateFilter}>
+            <option value="">All locations</option>
+            {meta.locations.map((location) => (
+              <option key={location} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
+        </label>
+        <input
+          className="plain-input"
+          name="minPrice"
+          placeholder={`Min ${config.currency}`}
+          type="number"
+          value={filters.minPrice}
+          onChange={updateFilter}
+        />
+        <input
+          className="plain-input"
+          name="maxPrice"
+          placeholder={`Max ${config.currency}`}
+          type="number"
+          value={filters.maxPrice}
+          onChange={updateFilter}
+        />
+        <label className="select-box">
+          <select name="sort" value={filters.sort} onChange={updateFilter}>
+            <option value="newest">Newest</option>
+            <option value="priceLow">Price: low to high</option>
+            <option value="priceHigh">Price: high to low</option>
+            <option value="stockHigh">Highest stock</option>
+          </select>
+        </label>
+        <button className="secondary-button compact toolbar-button" type="button" onClick={clearFilters}>
+          <RefreshCcw size={16} />
+          Reset
+        </button>
+      </div>
+
+      <div className="market-summary">
+        <span>
+          Showing {products.length} of {pagination.total} matching products
+        </span>
+        <span>
+          Total visible stock: {meta.priceRange.totalStock || 0} units
+        </span>
+      </div>
+
+      {activeFilterChips.length > 0 && (
+        <div className="filter-chip-row" aria-label="Active filters">
+          {activeFilterChips.map((chip) => (
+            <button key={chip.name} type="button" onClick={() => clearFilter(chip.name)}>
+              {chip.label}
+              <X size={14} />
+            </button>
+          ))}
+          <button className="clear-all-chip" type="button" onClick={clearFilters}>
+            Clear all
+          </button>
+        </div>
+      )}
 
       {message && <div className="alert success">{message}</div>}
       {error && <div className="alert error">{error}</div>}
@@ -466,14 +439,8 @@ export default function CustomerMarket() {
             ))}
             <div className="market-footer-column">
               <h2>Support</h2>
-              <span>
-                <BadgeCheck size={15} />
-                Farmer verification
-              </span>
-              <span>
-                <Truck size={15} />
-                Delivery updates
-              </span>
+              <span>Farmer verification</span>
+              <span>Delivery updates</span>
               <span>Order help</span>
             </div>
           </nav>
