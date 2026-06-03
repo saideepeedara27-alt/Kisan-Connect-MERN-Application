@@ -150,26 +150,27 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 sudo usermod -aG docker $USER
 ```
 
-5. Log out and log back in, then copy the project to EC2.
-6. Create the EC2 environment file:
+5. Log out and log back in.
+6. Copy the project to EC2, or let GitHub Actions copy it during CI/CD.
+7. Create the EC2 environment file for manual deployment:
 
 ```bash
 cp .env.example .env
 ```
 
-7. Edit `.env`:
+8. Edit `.env`:
 
 - Replace `YOUR_EC2_PUBLIC_IP` in `CLIENT_URL`.
 - Paste your Atlas URI into `MONGO_URI`, including `/farm_connect`.
 - Replace `JWT_SECRET` with a long random value.
 
-8. Start the app:
+9. Start the app manually:
 
 ```bash
 docker compose up --build -d
 ```
 
-9. Check containers:
+10. Check containers:
 
 ```bash
 docker compose ps
@@ -178,6 +179,46 @@ docker compose ps
 The hosted app will be available at `http://YOUR_EC2_PUBLIC_IP`. The frontend proxies `/api` and `/uploads` to the backend container, so port `5001` is bound only to `127.0.0.1` and does not need to be opened publicly for users.
 
 Copy the `server/uploads` folder to EC2 with the project if you want existing product images to appear after migration. MongoDB Atlas stores the records, but uploaded image files still live in `server/uploads`.
+
+## GitHub Actions CI/CD
+
+The workflow in `.github/workflows/deploy-ec2.yml` runs on pushes to `main`.
+
+It does three things:
+
+- Builds the React frontend.
+- Validates `docker-compose.yml`.
+- Copies the project directly to EC2, writes `.env` from GitHub Secrets, and runs `docker compose up --build -d`.
+
+Add these GitHub Actions secrets:
+
+```text
+EC2_HOST=your_ec2_public_ip
+EC2_USER=ubuntu
+EC2_SSH_KEY=your_private_key_content
+CLIENT_URL=http://your_ec2_public_ip
+MONGO_URI=your_atlas_uri_with_/farm_connect
+JWT_SECRET=long_random_secret
+```
+
+Optional secrets:
+
+```text
+EC2_PORT=22
+EC2_APP_DIR=/home/ubuntu/kisan-connect
+JWT_EXPIRES_IN=7d
+FARMER_SUBSCRIPTION_AMOUNT=199
+CUSTOMER_PLATFORM_FEE=15
+CURRENCY=INR
+FAST_DELIVERY_PROVIDER=Kisan Connect Delivery
+FAST_DELIVERY_ETA_MINUTES=45
+FAST_DELIVERY_PHONE=+918880045045
+SUPPORT_PHONE=+918880012345
+SUPPORT_EMAIL=support@kisanconnect.local
+SUPPORT_HOURS=Every day, 8 AM - 8 PM
+```
+
+After secrets are added, push to `main` and GitHub Actions will deploy to EC2.
 
 Create or update only the admin account without resetting products/users:
 
