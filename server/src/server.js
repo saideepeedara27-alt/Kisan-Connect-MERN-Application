@@ -21,11 +21,19 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 5001;
+const additionalOrigins = (process.env.ADDITIONAL_CLIENT_URLS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 const allowedOrigins = new Set([
   process.env.CLIENT_URL || 'http://localhost:5173',
+  ...additionalOrigins,
   'http://localhost:5173',
   'http://localhost:5174'
 ]);
+
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
 
 app.use(
   cors({

@@ -34,6 +34,15 @@ jobs:
           JWT_SECRET: ci-compose-check
         run: docker compose config
 
+      - name: Validate HTTPS Docker Compose
+        env:
+          APP_DOMAIN: kisanconnect.example.com
+          CLIENT_PORT: 127.0.0.1:8080
+          CLIENT_URL: https://kisanconnect.example.com
+          MONGO_URI: mongodb+srv://example:example@example.mongodb.net/farm_connect
+          JWT_SECRET: ci-compose-check
+        run: docker compose --profile https config
+
   deploy:
     name: Deploy To EC2
     runs-on: ubuntu-latest
@@ -78,14 +87,27 @@ jobs:
 
             mkdir -p server/uploads
 
+            APP_DOMAIN="${{ secrets.APP_DOMAIN }}"
+            COMPOSE_ARGS=""
+            if [ -n "$APP_DOMAIN" ]; then
+              export APP_DOMAIN
+              export CLIENT_PORT="127.0.0.1:8080"
+              export CLIENT_URL="https://$APP_DOMAIN"
+              COMPOSE_ARGS="--profile https"
+              echo "HTTPS deploy enabled for $APP_DOMAIN"
+            else
+              export CLIENT_PORT="80"
+              export CLIENT_URL="${{ secrets.CLIENT_URL }}"
+              echo "HTTP deploy enabled. Add APP_DOMAIN secret to enable HTTPS."
+            fi
+
             cat > .env <<'EOF'
-            CLIENT_PORT=80
             SERVER_PORT=5001
-            CLIENT_URL=${{ secrets.CLIENT_URL }}
             VITE_API_URL=
             MONGO_URI=${{ secrets.MONGO_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN || '7d' }}
+            ADDITIONAL_CLIENT_URLS=${{ secrets.ADDITIONAL_CLIENT_URLS }}
             FARMER_SUBSCRIPTION_AMOUNT=${{ secrets.FARMER_SUBSCRIPTION_AMOUNT || '199' }}
             CUSTOMER_PLATFORM_FEE=${{ secrets.CUSTOMER_PLATFORM_FEE || '15' }}
             CURRENCY=${{ secrets.CURRENCY || 'INR' }}
@@ -96,9 +118,14 @@ jobs:
             SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL || 'support@kisanconnect.local' }}
             SUPPORT_HOURS=${{ secrets.SUPPORT_HOURS || 'Every day, 8 AM - 8 PM' }}
             EOF
+            {
+              echo "CLIENT_PORT=$CLIENT_PORT"
+              echo "CLIENT_URL=$CLIENT_URL"
+              echo "APP_DOMAIN=$APP_DOMAIN"
+            } >> .env
 
-            docker compose down --remove-orphans || true
-            docker rm -f kisan-connect-server kisan-connect-client kisan-connect-server-1 kisan-connect-client-1 2>/dev/null || true
+            docker compose $COMPOSE_ARGS down --remove-orphans || true
+            docker rm -f kisan-connect-server kisan-connect-client kisan-connect-caddy kisan-connect-server-1 kisan-connect-client-1 kisan-connect-caddy-1 2>/dev/null || true
 
             SERVER_PORT_CONTAINERS="$(docker ps -q --filter "publish=5001")"
             if [ -n "$SERVER_PORT_CONTAINERS" ]; then
@@ -112,5 +139,11 @@ jobs:
               docker rm -f $CLIENT_PORT_CONTAINERS
             fi
 
-            docker compose up --build -d --remove-orphans
-            docker compose ps
+            HTTPS_PORT_CONTAINERS="$(docker ps -q --filter "publish=443")"
+            if [ -n "$HTTPS_PORT_CONTAINERS" ]; then
+              echo "Removing old container using HTTPS port 443: $HTTPS_PORT_CONTAINERS"
+              docker rm -f $HTTPS_PORT_CONTAINERS
+            fi
+
+            docker compose $COMPOSE_ARGS up --build -d --remove-orphans
+            docker compose $COMPOSE_ARGS ps

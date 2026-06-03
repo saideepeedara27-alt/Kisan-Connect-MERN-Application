@@ -1,89 +1,89 @@
-# Kisan Connect MERN App
+# Kisan Connect
 
-Kisan Connect is a farmer-to-customer marketplace MVP with separate flows for farmers, customers, delivery partners, and admin.
+Kisan Connect is a MERN farm marketplace application I built to connect farmers, customers, delivery partners, and an admin team in one simple flow. The idea is practical: farmers can list available stock, customers can buy fresh products, delivery partners can handle assigned orders, and the admin can verify farmer details before trust is shown in the marketplace.
 
-## What The App Does
+This project focuses on a real farm-to-customer workflow instead of only showing static product cards. It includes role-based dashboards, product stock handling, customer orders, delivery updates, farmer verification, support requests, Docker deployment, MongoDB Atlas support, and GitHub Actions deployment to EC2.
 
-- Farmers register, activate a nominal subscription, upload stock, and manage customer orders.
-- Farmers can edit listings, hide/show products, and see low-stock inventory alerts.
-- Customers browse product categories, filter by price/location, sort stock, add items to cart, place orders, and pay a nominal platform fee.
-- Product cards show farmer details and a direct call option when a farmer phone number exists.
-- Customers can contact support through an in-app chat request, direct call button, and support history.
-- Stock is reserved atomically during checkout to reduce overselling risk.
-- Demo stock is available through the seed script so the marketplace does not look empty during testing.
+## What I Built
 
-## Frontend And Backend
-
-**Frontend** is the visible app used in the browser. In this project it lives in `client/` and is built with React + Vite. It contains pages, buttons, forms, product cards, cart, checkout, farmer dashboard, and the support widget.
-
-**Backend** is the server that handles data and business logic. In this project it lives in `server/` and is built with Node.js + Express + MongoDB. It handles login, farmer subscriptions, product stock, orders, support requests, and uploaded product images.
-
-## Main Features
-
-- Role-based farmer and customer interfaces
-- Farmer verification details collected during registration
-- Farmer trust status shown in dashboard and product cards
-- Admin verification desk for approving, rejecting, or reviewing farmer requests
-- Farmer subscription activation
-- Product image upload or image URL
-- Product editing and visibility controls
-- Category, location, price, and sorting filters
-- Paginated marketplace API
-- Cart and checkout
-- Customer order history
-- Farmer order status updates
-- Customer support ticket creation and history
-- Demo seed data across multiple stock categories
+- A customer marketplace with search, category filters, location filters, price filters, sorting, saved products, cart, checkout, and order history.
+- A farmer dashboard where farmers can activate a subscription, add products, edit stock, hide/show listings, and manage order status.
+- A delivery partner desk where delivery users can see assigned orders and update delivery progress.
+- An admin verification desk for reviewing farmer registration details.
+- Area-based delivery partner assignment so orders can be connected to partners by service location.
+- Order date and time visibility across customer, farmer, and delivery views.
+- Customer support with a support widget, call option, request form, and support history.
+- A redesigned frontend with a cleaner logo, marketplace sections, improved admin desk, and a market-page footer.
+- Docker and Docker Compose setup for containerized hosting.
+- MongoDB Atlas configuration for hosted database usage.
+- GitHub Actions CI/CD for automatic EC2 deployment.
 
 ## Tech Stack
 
-- MongoDB
-- Express
-- React + Vite
-- Node.js
-- JWT authentication
-- Local image uploads with Multer
+- Frontend: React, Vite, CSS
+- Backend: Node.js, Express
+- Database: MongoDB / MongoDB Atlas
+- Authentication: JWT
+- Uploads: Multer local uploads
+- Deployment: Docker, Docker Compose, GitHub Actions, EC2
+- HTTPS option: Caddy with Let's Encrypt
 
-## Setup
+## Project Structure
 
-1. Install dependencies:
+```text
+client/      React frontend
+server/      Express backend and MongoDB models
+.github/     GitHub Actions deployment workflow
+Dockerfile.* Docker build files
+docker-compose.yml
+Caddyfile    HTTPS reverse proxy config
+```
+
+## Frontend And Backend
+
+The frontend is the part users see in the browser. It lives in `client/` and contains the marketplace, dashboards, forms, cart, order screens, and support UI.
+
+The backend is the API and business logic. It lives in `server/` and handles authentication, users, farmer verification, products, stock, orders, support tickets, delivery assignment, and uploaded files.
+
+## Local Setup
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Create the server environment file if it does not already exist. For local development, use your local MongoDB URI or Atlas URI:
+Create the environment file:
 
 ```bash
 cp .env.example server/.env
 ```
 
-3. Start MongoDB locally.
+Use either local MongoDB or MongoDB Atlas in `server/.env`.
 
-4. Add demo data:
+For local MongoDB:
 
-```bash
-npm run seed
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/farm_connect
 ```
 
-5. Run the app:
+For Atlas:
+
+```env
+MONGO_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.example.mongodb.net/farm_connect?retryWrites=true&w=majority
+```
+
+Run the app:
 
 ```bash
 npm run dev
 ```
 
-The API runs on `http://localhost:5001` and the client runs on `http://localhost:5173`.
+Local URLs:
 
-Run only the backend:
-
-```bash
-npm run dev:server
-```
-
-Run only the frontend:
-
-```bash
-npm run dev:client
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:5001
 ```
 
 Build the frontend:
@@ -92,15 +92,27 @@ Build the frontend:
 npm run build
 ```
 
-## Docker Hosting
+Seed demo data:
 
-This project is configured for hosting with MongoDB Atlas. Create the environment file:
+```bash
+npm run seed
+```
+
+Create or update only the admin account:
+
+```bash
+npm run create-admin
+```
+
+## Docker Setup
+
+Create the root `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-For local Docker testing, set these values in `.env`:
+For local Docker testing, use:
 
 ```env
 CLIENT_PORT=5173
@@ -109,21 +121,23 @@ MONGO_URI=your_atlas_uri_with_/farm_connect
 JWT_SECRET=make_a_long_random_secret
 ```
 
-Run:
+Run containers:
 
 ```bash
 docker compose up --build -d
 ```
 
-Then open `http://localhost:5173`.
+Open:
 
-Stop:
+```text
+http://localhost:5173
+```
+
+Stop containers:
 
 ```bash
 docker compose down
 ```
-
-Do not run the seed script after migrating your real data to Atlas unless you intentionally want to reset/demo-fill records.
 
 Check containers:
 
@@ -131,12 +145,20 @@ Check containers:
 docker compose ps
 ```
 
-## EC2 Hosting Setup
+## EC2 Hosting
 
-1. Launch an Ubuntu EC2 instance.
-2. In the EC2 security group, allow inbound SSH `22` from your IP and HTTP `80` from the internet.
-3. In MongoDB Atlas, add your EC2 public IP to **Network Access**. For quick testing you can temporarily allow `0.0.0.0/0`, but a fixed EC2 IP is safer.
-4. Install Docker on EC2:
+For EC2 hosting, MongoDB Atlas is recommended. The EC2 server runs the app containers, while Atlas stores the database.
+
+Basic EC2 checklist:
+
+- Launch an Ubuntu EC2 instance.
+- Allow inbound SSH `22` from your IP.
+- Allow inbound HTTP `80` for normal HTTP hosting.
+- Allow inbound HTTPS `443` if you are using a domain and SSL.
+- Add the EC2 public IP to MongoDB Atlas Network Access.
+- Install Docker and Docker Compose plugin on EC2.
+
+Install Docker on Ubuntu:
 
 ```bash
 sudo apt update
@@ -150,47 +172,81 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 sudo usermod -aG docker $USER
 ```
 
-5. Log out and log back in.
-6. Clone the project to EC2 for manual deployment, or let GitHub Actions clone/pull it during CI/CD.
-7. Create the EC2 environment file for manual deployment:
+Log out and log back in after adding the Docker group.
+
+Manual deploy on EC2:
 
 ```bash
+git clone https://github.com/saideepeedara27-alt/Kisan-Connect-MERN-Application.git
+cd Kisan-Connect-MERN-Application
 cp .env.example .env
-```
-
-8. Edit `.env`:
-
-- Replace `YOUR_EC2_PUBLIC_IP` in `CLIENT_URL`.
-- Paste your Atlas URI into `MONGO_URI`, including `/farm_connect`.
-- Replace `JWT_SECRET` with a long random value.
-
-9. Start the app manually:
-
-```bash
+nano .env
 docker compose up --build -d
-```
-
-10. Check containers:
-
-```bash
 docker compose ps
 ```
 
-The hosted app will be available at `http://YOUR_EC2_PUBLIC_IP`. The frontend proxies `/api` and `/uploads` to the backend container, so port `5001` is bound only to `127.0.0.1` and does not need to be opened publicly for users.
+For IP-based hosting, use:
 
-Copy the `server/uploads` folder to EC2 with the project if you want existing product images to appear after migration. MongoDB Atlas stores the records, but uploaded image files still live in `server/uploads`.
+```env
+CLIENT_URL=http://YOUR_EC2_PUBLIC_IP
+CLIENT_PORT=80
+```
+
+The app will open at:
+
+```text
+http://YOUR_EC2_PUBLIC_IP
+```
+
+## Making The Site Secure With HTTPS
+
+If the browser shows `Not Secure`, it is because the app is being opened with plain HTTP.
+
+To get a proper secure lock icon, use a real domain name. A raw EC2 public IP usually cannot get a normal trusted browser certificate.
+
+HTTPS steps:
+
+1. Buy or use a domain.
+2. Point the domain DNS `A` record to the EC2 public IP.
+3. In the EC2 security group, open ports `80` and `443`.
+4. Set these values:
+
+```env
+APP_DOMAIN=your-domain.com
+CLIENT_URL=https://your-domain.com
+CLIENT_PORT=127.0.0.1:8080
+```
+
+5. Start with the HTTPS profile:
+
+```bash
+docker compose --profile https up --build -d
+```
+
+Caddy will request and renew the SSL certificate automatically through Let's Encrypt.
+
+If port `80` or `443` is already occupied, stop the old service/container first:
+
+```bash
+docker ps
+docker rm -f OLD_CONTAINER_ID
+```
 
 ## GitHub Actions CI/CD
 
-The workflow in `.github/workflows/deploy-ec2.yml` runs on pushes to `main`.
+The workflow in `.github/workflows/deploy-ec2.yml` runs when code is pushed to `main`.
 
-It does three things:
+It:
 
-- Builds the React frontend.
-- Validates `docker-compose.yml`.
-- SSHes into EC2, clones or pulls this GitHub repository, writes `.env` from GitHub Secrets, and runs `docker compose up --build -d`.
+- Builds the frontend.
+- Validates Docker Compose.
+- SSHes into EC2.
+- Pulls the latest code.
+- Writes `.env` from GitHub Secrets.
+- Rebuilds and restarts the containers.
+- Cleans old containers using ports `5001`, `80`, and `443`.
 
-Add these GitHub Actions secrets:
+Required GitHub Secrets:
 
 ```text
 EC2_HOST=your_ec2_public_ip
@@ -201,11 +257,26 @@ MONGO_URI=your_atlas_uri_with_/farm_connect
 JWT_SECRET=long_random_secret
 ```
 
-Optional secrets:
+For HTTPS deployment, add:
+
+```text
+APP_DOMAIN=your-domain.com
+```
+
+When `APP_DOMAIN` is present, the workflow automatically uses:
+
+```text
+CLIENT_URL=https://your-domain.com
+CLIENT_PORT=127.0.0.1:8080
+docker compose --profile https up --build -d --remove-orphans
+```
+
+Optional GitHub Secrets:
 
 ```text
 EC2_PORT=22
 EC2_APP_DIR=/home/ubuntu/kisan-connect
+ADDITIONAL_CLIENT_URLS=https://www.your-domain.com
 JWT_EXPIRES_IN=7d
 FARMER_SUBSCRIPTION_AMOUNT=199
 CUSTOMER_PLATFORM_FEE=15
@@ -218,20 +289,14 @@ SUPPORT_EMAIL=support@kisanconnect.local
 SUPPORT_HOURS=Every day, 8 AM - 8 PM
 ```
 
-After secrets are added, push to `main` and GitHub Actions will deploy to EC2.
-
-Create or update only the admin account without resetting products/users:
-
-```bash
-npm run create-admin
-```
-
 ## Demo Accounts
 
-- Farmer: `farmer@example.com` / `Password123`
-- Second farmer: `farmer2@example.com` / `Password123`
-- Customer: `customer@example.com` / `Password123`
-- Admin: `admin@example.com` / `Password123`
+```text
+Farmer:        farmer@example.com / Password123
+Second farmer: farmer2@example.com / Password123
+Customer:      customer@example.com / Password123
+Admin:         admin@example.com / Password123
+```
 
 ## Demo Categories
 
@@ -243,15 +308,9 @@ npm run create-admin
 - Pulses
 - Leafy Greens
 
-## Charges And Support
+## Notes
 
-The nominal charges and support contact details are configured in `server/.env`:
-
-- `FARMER_SUBSCRIPTION_AMOUNT`
-- `CUSTOMER_PLATFORM_FEE`
-- `CURRENCY`
-- `SUPPORT_PHONE`
-- `SUPPORT_EMAIL`
-- `SUPPORT_HOURS`
-
-Payments are mocked in this version. The subscription and checkout routes already keep payment references, so Razorpay, Stripe, or another provider can be connected later.
+- Payments are mocked in this version, but payment references are stored so a real provider like Razorpay or Stripe can be connected later.
+- MongoDB Atlas stores database records, but uploaded product images are stored in `server/uploads`.
+- If you migrate real data to Atlas, do not run the seed script unless you intentionally want demo data.
+- The backend port `5001` is bound to `127.0.0.1` in Docker, so users do not need public access to the API port.
