@@ -16,11 +16,33 @@ import {
   X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api, toAssetUrl } from '../api/client.js';
 import EmptyState from '../components/EmptyState.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+
+const fallbackMarketCategories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Spices', 'Pulses'];
+
+const marketFooterSections = [
+  {
+    title: 'Customers',
+    links: [
+      { label: 'Browse market', to: '/market' },
+      { label: 'Cart', to: '/cart' },
+      { label: 'My orders', to: '/orders' }
+    ]
+  },
+  {
+    title: 'Partners',
+    links: [
+      { label: 'Farmer registration', to: '/register?role=farmer' },
+      { label: 'Delivery partner', to: '/register?role=delivery' },
+      { label: 'Login desk', to: '/login' }
+    ]
+  }
+];
 
 function getCategoryIcon(category = '') {
   const normalized = category.toLowerCase();
@@ -147,6 +169,7 @@ export default function CustomerMarket() {
     filters.maxPrice && { label: `Max ${config.currency} ${filters.maxPrice}`, name: 'maxPrice' },
     filters.sort !== 'newest' && { label: filters.sort.replace(/([A-Z])/g, ' $1'), name: 'sort' }
   ].filter(Boolean);
+  const marketFooterCategories = meta.categories.length ? meta.categories.slice(0, 8) : fallbackMarketCategories;
 
   return (
     <section className="page-pad market-page">
@@ -386,6 +409,54 @@ export default function CustomerMarket() {
           </button>
         </div>
       )}
+
+      <footer className="market-info-footer">
+        <div className="market-footer-main">
+          <div className="market-footer-brand">
+            <strong>Kisan Connect Market</strong>
+            <p>
+              Fresh farm products, verified farmer listings, area-based delivery assignment, and customer support in one place.
+            </p>
+            <div className="market-footer-contact" aria-label="Market contact information">
+              <span>Support: +91 88800 12345</span>
+              <span>Email: support@kisanconnect.local</span>
+            </div>
+          </div>
+
+          <nav className="market-footer-links" aria-label="Market footer navigation">
+            {marketFooterSections.map((section) => (
+              <div className="market-footer-column" key={section.title}>
+                <h2>{section.title}</h2>
+                {section.links.map((link) => (
+                  <Link key={link.label} to={link.to}>
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            ))}
+            <div className="market-footer-column">
+              <h2>Support</h2>
+              <span>Order help</span>
+              <span>Farmer verification</span>
+              <span>Delivery updates</span>
+            </div>
+          </nav>
+        </div>
+
+        <div className="market-footer-categories" aria-label="Marketplace categories">
+          <strong>Categories</strong>
+          {marketFooterCategories.map((category) => (
+            <button key={category} type="button" onClick={() => selectCategory(category)}>
+              {category}
+            </button>
+          ))}
+        </div>
+
+        <div className="market-footer-bottom">
+          <span>(c) 2026 Kisan Connect. All rights reserved.</span>
+          <span>Terms and conditions | Privacy policy | Support policy</span>
+        </div>
+      </footer>
     </section>
   );
 }
