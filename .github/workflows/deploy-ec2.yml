@@ -97,5 +97,6 @@ jobs:
             SUPPORT_HOURS=${{ secrets.SUPPORT_HOURS || 'Every day, 8 AM - 8 PM' }}
             EOF
 
+            docker rm -f kisan-connect-server kisan-connect-client 2>/dev/null || true
             docker compose up --build -d
             docker compose ps
