@@ -1,8 +1,10 @@
 # Kisan Connect
 
-Kisan Connect is a MERN farm marketplace application I built to connect farmers, customers, delivery partners, and an admin team in one simple flow. The idea is practical: farmers can list available stock, customers can buy fresh products, delivery partners can handle assigned orders, and the admin can verify farmer details before trust is shown in the marketplace.
+Kisan Connect is my MERN farm marketplace project. I built it to show how farmers, customers, delivery partners, and an admin team can work through one connected application instead of handling product listing, ordering, and delivery separately.
 
-This project focuses on a real farm-to-customer workflow instead of only showing static product cards. It includes role-based dashboards, product stock handling, customer orders, delivery updates, farmer verification, support requests, Docker deployment, MongoDB Atlas support, and GitHub Actions deployment to EC2.
+In this project, I am demonstrating a real farm-to-customer workflow. A farmer can register, activate a subscription, list stock, and manage orders. A customer can browse products, add items to cart, place orders, and track them. A delivery partner can handle assigned deliveries based on service areas. The admin can verify farmer details before trust information is shown in the marketplace.
+
+I also added deployment work to show that this is not only a local demo. The project supports Docker, MongoDB Atlas, GitHub Actions CI/CD, EC2 hosting, Google login, and HTTPS through Caddy.
 
 ## What I Built
 
@@ -28,6 +30,18 @@ This project focuses on a real farm-to-customer workflow instead of only showing
 - Uploads: Multer local uploads
 - Deployment: Docker, Docker Compose, GitHub Actions, EC2
 - HTTPS option: Caddy with Let's Encrypt
+
+## How I Demonstrate The Project
+
+When I present this project, I usually walk through it in this order:
+
+1. Start with the marketplace and show how customers search, filter, save products, add items to cart, and place an order.
+2. Move to the farmer dashboard and show subscription activation, product listing, stock updates, product visibility, and customer order management.
+3. Show the delivery partner dashboard and explain how delivery partners are assigned by location or service area.
+4. Open the admin desk and demonstrate farmer verification, approval, review, and rejection.
+5. Show customer support, order date/time visibility, and the cleaner market footer.
+6. Explain the backend APIs, MongoDB Atlas database, Docker containers, and GitHub Actions deployment to EC2.
+7. Finish with Google login and HTTPS hosting using either a real domain or a free `sslip.io` hostname.
 
 ## Project Structure
 
@@ -327,13 +341,13 @@ GOOGLE_CLIENT_ID=your_google_web_client_id
 For HTTPS deployment, add:
 
 ```text
-APP_DOMAIN=your-domain.com
+APP_DOMAIN=16.16.176.100.sslip.io
 ```
 
 When `APP_DOMAIN` is present, the workflow automatically uses:
 
 ```text
-CLIENT_URL=https://your-domain.com
+CLIENT_URL=https://16.16.176.100.sslip.io
 CLIENT_PORT=127.0.0.1:8080
 docker compose --profile https up --build -d --remove-orphans
 ```
