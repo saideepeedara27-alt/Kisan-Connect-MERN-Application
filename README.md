@@ -6,6 +6,20 @@ In this project, I am demonstrating a real farm-to-customer workflow. A farmer c
 
 I also added deployment work to show that this is not only a local demo. The project supports Docker, MongoDB Atlas, GitHub Actions CI/CD, EC2 hosting, Google login, and HTTPS through Caddy.
 
+## Live Access
+
+Hosted project link:
+
+```text
+https://16.16.176.100.sslip.io
+```
+
+If HTTPS is still being configured on EC2, the HTTP access link is:
+
+```text
+http://16.16.176.100.sslip.io
+```
+
 ## What I Built
 
 - A customer marketplace with search, category filters, location filters, price filters, sorting, saved products, cart, checkout, and order history.
@@ -31,17 +45,15 @@ I also added deployment work to show that this is not only a local demo. The pro
 - Deployment: Docker, Docker Compose, GitHub Actions, EC2
 - HTTPS option: Caddy with Let's Encrypt
 
-## How I Demonstrate The Project
+## My Demonstration
 
-When I present this project, I usually walk through it in this order:
+In my demonstration, I present Kisan Connect as a complete farm marketplace workflow. I start from the customer side because that is where the marketplace value is easiest to see: customers can browse fresh products, filter by category, location, and price, save products, add items to cart, and place an order.
 
-1. Start with the marketplace and show how customers search, filter, save products, add items to cart, and place an order.
-2. Move to the farmer dashboard and show subscription activation, product listing, stock updates, product visibility, and customer order management.
-3. Show the delivery partner dashboard and explain how delivery partners are assigned by location or service area.
-4. Open the admin desk and demonstrate farmer verification, approval, review, and rejection.
-5. Show customer support, order date/time visibility, and the cleaner market footer.
-6. Explain the backend APIs, MongoDB Atlas database, Docker containers, and GitHub Actions deployment to EC2.
-7. Finish with Google login and HTTPS hosting using either a real domain or a free `sslip.io` hostname.
+After that, I show how the farmer side works. The farmer can activate a subscription, add products, update stock, control product visibility, and manage customer orders from the farmer dashboard. I also show the admin desk, where farmer verification details can be reviewed before trust status appears in the marketplace.
+
+I then demonstrate the delivery partner workflow. Delivery partners have their own dashboard and orders can be assigned based on service areas, which makes the delivery flow more practical than direct manual assignment.
+
+Finally, I explain the technical work behind the app: the Express APIs, MongoDB Atlas database, JWT and Google login, Docker containers, EC2 hosting, GitHub Actions deployment, and HTTPS support using Caddy with the free `sslip.io` hostname.
 
 ## Project Structure
 
