@@ -151,7 +151,7 @@ sudo usermod -aG docker $USER
 ```
 
 5. Log out and log back in.
-6. Copy the project to EC2, or let GitHub Actions copy it during CI/CD.
+6. Clone the project to EC2 for manual deployment, or let GitHub Actions clone/pull it during CI/CD.
 7. Create the EC2 environment file for manual deployment:
 
 ```bash
@@ -188,7 +188,7 @@ It does three things:
 
 - Builds the React frontend.
 - Validates `docker-compose.yml`.
-- Copies the project directly to EC2, writes `.env` from GitHub Secrets, and runs `docker compose up --build -d`.
+- SSHes into EC2, clones or pulls this GitHub repository, writes `.env` from GitHub Secrets, and runs `docker compose up --build -d`.
 
 Add these GitHub Actions secrets:
 
